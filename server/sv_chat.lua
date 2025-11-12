@@ -6,6 +6,25 @@ AddEventHandler('cdtChat:init', function()
     TriggerClientEvent('cdtChat:updatePermissions', source, hasPermission, isAdmin)
 end)
 
+RegisterServerEvent('cdtChat:getPlayersForAnnounce')
+AddEventHandler('cdtChat:getPlayersForAnnounce', function()
+    local source = source
+    local players = {}
+    
+    for _, pid in ipairs(GetPlayers()) do
+        local playerId = tonumber(pid)
+        local playerName = GetPlayerName(playerId)
+        if playerName then
+            table.insert(players, {
+                id = playerId,
+                name = playerName
+            })
+        end
+    end
+    
+    TriggerClientEvent('cdtChat:playersListResponse', source, players)
+end)
+
 RegisterServerEvent('cdtChat:meCommand')
 AddEventHandler('cdtChat:meCommand', function(message)
     local source = source
