@@ -4,6 +4,8 @@
 
 CDT Chat System is a free, fully customizable chat resource for FiveM that replaces the default chat with a modern, feature-rich interface. This resource is designed for roleplay servers requiring an advanced communication system with admin tools and roleplay commands.
 
+![CDT Chat System Preview](https://raw.githubusercontent.com/Chris29380/chat/master/screens/screen1.png)
+
 ---
 
 ## Features & Content

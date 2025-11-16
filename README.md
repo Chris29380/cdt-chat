@@ -10,6 +10,8 @@
 
 **CDT Chat System** est une ressource FiveM personnalisée offrant un système de chat avancé avec support complet des commandes de roleplay. Cette ressource remplace le système de chat par défaut de FiveM avec une interface moderne et des fonctionnalités complètes.
 
+![CDT Chat System Preview](https://raw.githubusercontent.com/Chris29380/chat/master/screens/screen1.png)
+
 ### ✨ Fonctionnalités
 
 - **Système de Chat Personnalisé** - Interface UI moderne et configurable
@@ -170,6 +172,8 @@ Pour toute question ou problème, contactez l'équipe CDT.
 ### 📋 Description
 
 **CDT Chat System** is a custom FiveM resource offering an advanced chat system with full support for roleplay commands. This resource replaces FiveM's default chat system with a modern interface and complete functionality.
+
+![CDT Chat System Preview](https://raw.githubusercontent.com/Chris29380/chat/master/screens/screen1.png)
 
 ### ✨ Features
 
