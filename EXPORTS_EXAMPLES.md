@@ -327,22 +327,19 @@ end, false)
 
 ```lua
 -- Notifications d'événements
-local function triggerServerEvent(eventName, eventData)
+local function logServerEvent(eventName, eventData)
     local message = eventName .. ': ' .. (eventData or 'N/A')
+    local importance = string.find(eventName, 'error') and 'error' or 'info'
     
-    exports.chat:sendSystemMessage('info', message, 'info')
-    
-    if eventData and string.find(eventName, 'error') then
-        exports.chat:sendSystemMessage('errors', message, 'error')
-    end
+    exports.chat:sendSystemMessage('commands', message, importance)
 end
 
 -- Utilisation
-TriggerEvent('server:event', 'SERVER_START')
-triggerServerEvent('SERVER_START', 'Serveur démarré avec succès')
+logServerEvent('SERVER_START', 'Serveur démarré avec succès')
+exports.chat:broadcastChatMessage('SERVER', 'Serveur redémarrage complété')
 
-TriggerEvent('server:event', 'DATABASE_ERROR')
-triggerServerEvent('DATABASE_ERROR', 'Erreur de connexion base de données')
+logServerEvent('DATABASE_ERROR', 'Erreur de connexion base de données')
+exports.chat:sendSystemMessage('errors', 'Erreur critique détectée', 'error')
 ```
 
 ### 3. Système de rapport avec evidence

@@ -158,7 +158,7 @@ Config.Chat.Styling = {
 Pour les annonces importantes, utilisez la version avancée :
 
 ```lua
-TriggerClientEvent('cdtChat:showAdvancedAnnouncement', -1, {
+exports.chat:sendAdvancedAnnouncement({
     importance = 'warning',
     message = 'Message important',
     duration = 10,
@@ -166,7 +166,7 @@ TriggerClientEvent('cdtChat:showAdvancedAnnouncement', -1, {
         bold = true,
         color = '#ff0000'
     }
-})
+}, 'all')
 ```
 
 ---
@@ -217,20 +217,25 @@ TriggerClientEvent('cdtChat:showAdvancedAnnouncement', -1, {
 
 ## Intégration avec d'autres ressources
 
-### Événements utiles à écouter
+### Vérifier le statut de mute des joueurs
+
+Pour intégrer le système de mute avec d'autres ressources, utilisez les exports disponibles:
 
 ```lua
--- Quand un joueur est mute
-RegisterNetEvent('cdtChat:playerMuted')
-AddEventHandler('cdtChat:playerMuted', function(duration)
-    -- Votre logique personnalisée
+-- Vérifier si un joueur est mute
+exports.chat:isPlayerMuted(playerId, function(isMuted, timeRemaining)
+    if isMuted then
+        print("Joueur est mute pour " .. timeRemaining .. "s")
+    else
+        print("Joueur n'est pas mute")
+    end
 end)
 
--- Quand un joueur est demute
-RegisterNetEvent('cdtChat:playerUnmuted')
-AddEventHandler('cdtChat:playerUnmuted', function()
-    -- Votre logique personnalisée
-end)
+-- Appliquer un mute
+exports.chat:mutePlayer(playerId, 30, "Raison du mute")
+
+-- Retirer un mute
+exports.chat:unmutePlayer(playerId)
 ```
 
 ### Exemples d'utilisation

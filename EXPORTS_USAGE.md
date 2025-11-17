@@ -301,9 +301,7 @@ Enregistre un handler pour une commande chat personnalisée.
 
 ```lua
 exports.chat:registerChatCommandHandler('customcmd', function(playerId, command)
-    TriggerClientEvent('chat:addMessage', playerId, {
-        args = {'CUSTOM', 'Commande personnalisée exécutée!'}
-    })
+    exports.chat:sendChatMessage(playerId, 'CUSTOM', 'Commande personnalisée exécutée!')
 end)
 
 -- L'utilisateur peut ensuite faire: /customcmd
@@ -440,17 +438,13 @@ end
 
 ```lua
 -- Dans votre middleware de chat
-RegisterNetEvent('chat:verifyMessage')
-AddEventHandler('chat:verifyMessage', function(message)
-    local source = source
-    local hasBlocked, word = exports.chat:checkBlockedWords(message)
+exports.chat:registerChatCommandHandler('verify', function(playerId, command)
+    local hasBlocked, word = exports.chat:checkBlockedWords(command)
     
     if hasBlocked then
-        TriggerClientEvent('chat:addMessage', source, {
-            args = {'SYSTEM', 'Ce message contient un mot interdit: ' .. word}
-        })
+        exports.chat:sendChatMessage(playerId, 'SYSTEM', 'Ce message contient un mot interdit: ' .. word)
     else
-        exports.chat:addMessageToHistory(source, GetPlayerName(source), message)
+        exports.chat:addMessageToHistory(playerId, GetPlayerName(playerId), command)
     end
 end)
 ```
@@ -463,16 +457,15 @@ RegisterCommand('playerinfo', function(source, args, rawCommand)
     if not targetId then return end
     
     exports.chat:getPlayerHistory(targetId, 10, function(history)
-        TriggerClientEvent('chat:showPlayerInfo', source, {
-            playerId = targetId,
-            playerName = GetPlayerName(targetId),
-            messages = history,
-            muted = false
-        })
+        exports.chat:sendChatMessage(source, 'PLAYER_INFO', 'Historique de ' .. GetPlayerName(targetId))
+        for _, msg in ipairs(history) do
+            exports.chat:sendChatMessage(source, 'MSG', msg.message)
+        end
     end)
     
     exports.chat:isPlayerMuted(targetId, function(isMuted, timeRemaining)
-        TriggerClientEvent('chat:updatePlayerMuteStatus', source, isMuted, timeRemaining)
+        local status = isMuted and ('Mute: ' .. timeRemaining .. 's restant') or 'Non mute'
+        exports.chat:sendChatMessage(source, 'STATUS', status)
     end)
 end, false)
 ```
