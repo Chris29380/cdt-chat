@@ -673,3 +673,172 @@ AddEventHandler('cdtChat:toggleSystemMessages', function(enabled)
     
     TriggerClientEvent('cdtChat:updateSystemMessagesStatus', source, enabled)
 end)
+
+local ServerExports = {}
+
+function ServerExports.sendSimpleAnnouncement(message, targets)
+    if not message or message == '' then return end
+    targets = targets or 'all'
+    
+    if targets == 'all' then
+        for _, pid in ipairs(GetPlayers()) do
+            TriggerClientEvent('cdtChat:sendAnnouncement', tonumber(pid), message)
+        end
+    elseif type(targets) == 'table' then
+        for _, playerId in ipairs(targets) do
+            TriggerClientEvent('cdtChat:sendAnnouncement', tonumber(playerId), message)
+        end
+    elseif type(targets) == 'number' then
+        TriggerClientEvent('cdtChat:sendAnnouncement', targets, message)
+    end
+end
+
+function ServerExports.sendAdvancedAnnouncement(data, targets)
+    if not data or not data.message then return end
+    targets = targets or 'all'
+    
+    local announcementData = {
+        importance = data.importance or 'info',
+        message = tostring(data.message),
+        duration = tonumber(data.duration) or 5,
+        formatting = {
+            bold = data.formatting and data.formatting.bold == true or false,
+            italic = data.formatting and data.formatting.italic == true or false,
+            underline = data.formatting and data.formatting.underline == true or false,
+            color = (data.formatting and data.formatting.color) or Config.Announcement.DefaultFormatting.color
+        }
+    }
+    
+    if targets == 'all' then
+        for _, pid in ipairs(GetPlayers()) do
+            TriggerClientEvent('cdtChat:showAdvancedAnnouncement', tonumber(pid), announcementData)
+        end
+    elseif type(targets) == 'table' then
+        for _, playerId in ipairs(targets) do
+            TriggerClientEvent('cdtChat:showAdvancedAnnouncement', tonumber(playerId), announcementData)
+        end
+    elseif type(targets) == 'number' then
+        TriggerClientEvent('cdtChat:showAdvancedAnnouncement', targets, announcementData)
+    end
+end
+
+function ServerExports.mutePlayer(playerId, duration, reason)
+    if not playerId then return false end
+    duration = duration or Config.Mute.DefaultDuration
+    reason = reason or 'No reason provided'
+    
+    local adminName = 'SYSTEM'
+    mutePlayer(playerId, duration, reason, adminName)
+    TriggerClientEvent('cdtChat:playerMuted', playerId, duration)
+    return true
+end
+
+function ServerExports.unmutePlayer(playerId)
+    if not playerId then return false end
+    unmutePlayer(playerId)
+    TriggerClientEvent('cdtChat:playerUnmuted', playerId)
+    return true
+end
+
+function ServerExports.getPlayerMuteStatus(playerId, callback)
+    if not playerId or not callback then return end
+    getPlayerMuteStatus(playerId, function(isMuted, timeRemaining)
+        callback(isMuted, timeRemaining)
+    end)
+end
+
+function ServerExports.getPlayerHistory(playerId, limit, callback)
+    if not playerId or not callback then return end
+    limit = limit or Config.Database.History.Limit
+    getPlayerHistory(playerId, limit, callback)
+end
+
+function ServerExports.getPlayerHistoryByIdentifier(identifier, limit, callback)
+    if not identifier or not callback then return end
+    limit = limit or Config.Database.History.Limit
+    getPlayerHistoryByIdentifier(identifier, limit, callback)
+end
+
+function ServerExports.checkBlockedWords(message)
+    if not message then return false, nil end
+    return containsBlockedWord(message)
+end
+
+function ServerExports.addMessageToHistory(playerId, playerName, message)
+    if not playerId or not message then return false end
+    addMessageToHistory(playerId, playerName or 'Unknown', message)
+    return true
+end
+
+function ServerExports.registerChatCommandHandler(commandName, callback)
+    if not commandName or not callback then return false end
+    commandHandlers[commandName] = callback
+    return true
+end
+
+function ServerExports.sendChatMessage(playerId, source, message)
+    if not playerId or not source or not message then return false end
+    TriggerClientEvent('chat:addMessage', playerId, {
+        args = {source, message},
+        multiline = false
+    })
+    return true
+end
+
+function ServerExports.broadcastChatMessage(source, message)
+    if not source or not message then return false end
+    for _, pid in ipairs(GetPlayers()) do
+        TriggerClientEvent('chat:addMessage', tonumber(pid), {
+            args = {source, message},
+            multiline = false
+        })
+    end
+    return true
+end
+
+function ServerExports.sendSystemMessage(messageType, messageText, importance)
+    if not messageType or not messageText then return false end
+    sendSystemMessageToAdmins(messageType, messageText, importance or 'info')
+    return true
+end
+
+function ServerExports.getOnlinePlayers()
+    local players = {}
+    for _, pid in ipairs(GetPlayers()) do
+        local playerId = tonumber(pid)
+        table.insert(players, {
+            id = playerId,
+            name = GetPlayerName(playerId),
+            identifier = GetPlayerIdentifiers(playerId)[1] or 'unknown'
+        })
+    end
+    return players
+end
+
+function ServerExports.isPlayerMuted(playerId, callback)
+    if not playerId then 
+        if callback then callback(false, 0) end
+        return 
+    end
+    getPlayerMuteStatus(playerId, function(isMuted, timeRemaining)
+        if callback then
+            callback(isMuted, timeRemaining)
+        end
+    end)
+end
+
+exports('sendSimpleAnnouncement', ServerExports.sendSimpleAnnouncement)
+exports('sendAdvancedAnnouncement', ServerExports.sendAdvancedAnnouncement)
+exports('mutePlayer', ServerExports.mutePlayer)
+exports('unmutePlayer', ServerExports.unmutePlayer)
+exports('getPlayerMuteStatus', ServerExports.getPlayerMuteStatus)
+exports('getPlayerHistory', ServerExports.getPlayerHistory)
+exports('getPlayerHistoryByIdentifier', ServerExports.getPlayerHistoryByIdentifier)
+exports('checkBlockedWords', ServerExports.checkBlockedWords)
+exports('addMessageToHistory', ServerExports.addMessageToHistory)
+exports('registerChatCommandHandler', ServerExports.registerChatCommandHandler)
+exports('sendChatMessage', ServerExports.sendChatMessage)
+exports('broadcastChatMessage', ServerExports.broadcastChatMessage)
+exports('sendSystemMessage', ServerExports.sendSystemMessage)
+exports('getOnlinePlayers', ServerExports.getOnlinePlayers)
+exports('isPlayerMuted', ServerExports.isPlayerMuted)

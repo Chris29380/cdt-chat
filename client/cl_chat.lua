@@ -442,3 +442,93 @@ end)
 RegisterCommand('adminchat', function()
     TriggerServerEvent('cdtChat:openAdminPanelEvent')
 end, false)
+
+local Exports = {}
+
+function Exports.openChat()
+    if not chatActive then
+        chatActive = true
+        SendNUIMessage({
+            type = 'OPEN'
+        })
+        SetNuiFocus(true, true)
+    end
+end
+
+function Exports.closeChat()
+    if chatActive then
+        chatActive = false
+        SetNuiFocus(false, false)
+        SendNUIMessage({
+            type = 'CLOSE'
+        })
+    end
+end
+
+function Exports.isChatActive()
+    return chatActive
+end
+
+function Exports.isMuted()
+    return isMuted
+end
+
+function Exports.getMuteTimeRemaining()
+    return muteTimeRemaining
+end
+
+function Exports.hasAnnouncePermission()
+    return hasAnnouncePermission
+end
+
+function Exports.isAdmin()
+    return isAdmin
+end
+
+function Exports.sendMe(message)
+    if message and message ~= '' then
+        TriggerServerEvent('cdtChat:meCommand', message)
+    end
+end
+
+function Exports.sendDo(message)
+    if message and message ~= '' then
+        TriggerServerEvent('cdtChat:doCommand', message)
+    end
+end
+
+function Exports.sendAnnouncement(message)
+    if message and message ~= '' then
+        TriggerServerEvent('cdtChat:announceCommand', message)
+    end
+end
+
+function Exports.addMessage(source, message)
+    if message and message ~= '' then
+        TriggerEvent('chat:addMessage', {
+            args = {source or 'SYSTEM', message},
+            multiline = false
+        })
+    end
+end
+
+function Exports.getPlayerMuteStatus(callback)
+    TriggerServerEvent('cdtChat:checkMuteStatus')
+    Wait(100)
+    if callback then
+        callback(isMuted, muteTimeRemaining)
+    end
+end
+
+exports('openChat', Exports.openChat)
+exports('closeChat', Exports.closeChat)
+exports('isChatActive', Exports.isChatActive)
+exports('isMuted', Exports.isMuted)
+exports('getMuteTimeRemaining', Exports.getMuteTimeRemaining)
+exports('hasAnnouncePermission', Exports.hasAnnouncePermission)
+exports('isAdmin', Exports.isAdmin)
+exports('sendMe', Exports.sendMe)
+exports('sendDo', Exports.sendDo)
+exports('sendAnnouncement', Exports.sendAnnouncement)
+exports('addMessage', Exports.addMessage)
+exports('getPlayerMuteStatus', Exports.getPlayerMuteStatus)
