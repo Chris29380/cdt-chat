@@ -162,5 +162,5 @@ The resource is fully customizable through `config.lua`:
 
 ---
 
-*Last Updated: 2025-11-16*  
-*Version: 1.0.0*
+*Last Updated: 2025-11-19*  
+*Version: 1.0.2*
